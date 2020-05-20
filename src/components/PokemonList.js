@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Utils from '../libraries/utils';
 import '../App.css';
 //import PokemonSearch from './PokemonSearch'
 
@@ -35,8 +36,8 @@ class PokemonList extends Component {
     }
 
     renderPokemonList() {
-        const { pokemonList, pokemonSearchValue:searchValue } = this.state;
-        let filteredList;
+        const { pokemonList, pokemonSearchValue:searchValue } = Utils.clone(this.state);
+        let filteredList = [], filteredContent;
 
         filteredList = pokemonList.filter(({ Name:name, Types:types }) => {
             const formattedSearchValue = searchValue.toLowerCase();
@@ -49,16 +50,38 @@ class PokemonList extends Component {
         .slice(0, 4)
         .sort();
 
+        filteredContent = (filteredList.length === 0) ?
+            this.renderNoContent() :
+            filteredList.map(this.renderPokemon);
+
         return (
             <div>
                 <div>
-                    <input type="checkbox" id="maxCP" /> Maximum Combat Points
+                    <label htmlFor="maxCP" className="max-cp">
+                        <input type="checkbox" id="maxCP" />
+                        <small>
+                            Maximum Combat Points
+                        </small>
+                    </label>
                     <input type="text" onChange={this.filterList} placeholder="Pokemon or type" />
                 </div>
                 <ul className="suggestions">
-                    {filteredList.map(this.renderPokemon)}
+                    {filteredContent}
                 </ul>
             </div>
+        );
+    }
+
+    renderNoContent() {
+        return (
+            <li>
+                <img src="https://cyndiquil721.files.wordpress.com/2014/02/missingno.png" alt="" />
+                <div className="info">
+                    <h1 className="no-results">
+                        No results
+                    </h1>
+                </div>
+            </li>
         );
     }
 
@@ -71,10 +94,10 @@ class PokemonList extends Component {
                 <img src={image} alt="" />
                 <div className="info">
                     <h1>{name}</h1>
-                    {types.forEach((type) => {
+                    {types.map((type, key) => {
                         const className = `type ${type}`;
 
-                    return <span className={className}>{type}</span>
+                        return <span key={key} className={className}>{type}</span>;
                     })}
                 </div>
             </li>
